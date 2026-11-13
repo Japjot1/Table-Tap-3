@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Table Ordering</title>
+<style>
+:root{--g:#0f7a4f;--gd:#0a5a3a;--ink:#14231c;--bg:#f2f6f3;--mu:#6b7c73;--ln:#dbe5df;--rd:#c62828;--am:#f0a500}
+*{box-sizing:border-box}body{margin:0;font:16px/1.4 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+.c{max-width:640px;margin:0 auto;padding:16px}.w{max-width:1100px;margin:0 auto;padding:12px}
+h1{font-size:22px;margin:.3em 0}h2{font-size:18px;margin:.4em 0}h3{margin:.3em 0;font-size:16px}
+.card{background:#fff;border:1px solid var(--ln);border-radius:16px;padding:14px;margin:10px 0}
+.b{min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--ln);background:#fff;color:var(--ink);font:inherit;font-weight:600;cursor:pointer;margin:3px 3px 3px 0}
+.b.p{background:var(--g);border-color:var(--g);color:#fff}.b.d{background:var(--rd);border-color:var(--rd);color:#fff}.b.s{min-height:34px;padding:4px 10px}
+.in{width:100%;min-height:46px;padding:8px 12px;border:1px solid var(--ln);border-radius:12px;font:inherit;margin:4px 0}
+textarea.in{min-height:130px}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mu{color:var(--mu);font-size:14px}.err{color:var(--rd)}.tabs{display:flex;gap:6px;overflow:auto;margin:8px 0}
+.tabs .b.on{background:var(--ink);color:#fff}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.st{display:flex;align-items:center;gap:6px}.st b{min-width:24px;text-align:center}.st button{width:44px;height:44px;border-radius:50%;border:1px solid var(--g);background:#fff;color:var(--g);font-size:22px}
+.bar{position:sticky;bottom:0;background:var(--bg);padding:10px 0}.bar .b{width:100%}
+.glow{background:var(--am);color:#000;padding:6px 10px;border-radius:10px;font-weight:700;animation:gl 1s infinite alternate}
+@keyframes gl{to{box-shadow:0 0 14px 4px var(--am)}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.bnr{background:#fdecea;border:1px solid var(--rd);color:var(--rd);padding:10px;border-radius:12px;margin:8px 0}
+.ov{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:14px;z-index:9}.ov>div{background:#fff;border-radius:16px;padding:16px;max-width:460px;width:100%;max-height:90vh;overflow:auto}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:10;display:none}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.kp div{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:10px}.kp b{font-size:20px}
+.hero{background:var(--g);color:#fff;padding:18px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hn{font-size:22px;font-weight:800}.tp{opacity:.9;font-size:14px;margin-top:2px}
+.cw{background:#fff;color:var(--g);border:0;border-radius:14px;min-height:48px;padding:6px 12px;font:inherit;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:6px 0 10px;position:sticky;top:0;background:var(--bg);z-index:2}
+.chip{border:1px solid var(--g);color:var(--g);background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;white-space:nowrap;cursor:pointer}
+.ch{margin:16px 0 6px;font-size:19px;scroll-margin-top:64px}
+.item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--ln);border-radius:16px;padding:12px 14px;margin:8px 0}
+.in1{font-weight:700;font-size:17px}.pr{color:var(--g);font-weight:800;font-size:17px;margin-top:2px}
+.add{min-width:84px;min-height:44px;border-radius:12px;border:1.5px solid var(--g);background:#fff;color:var(--g);font:inherit;font-weight:800;cursor:pointer}
+.cartbar{position:fixed;left:0;right:0;bottom:0;background:var(--ink);color:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;gap:10px;z-index:5}
+.cartbar .b{margin:0;min-width:150px}.note{background:#fff8e1;border:1px solid var(--am);border-radius:12px;padding:10px;margin:10px 0}
+.ok{border-color:var(--g)}.bd{font-size:13px;font-weight:600}.bd.new{color:#9a6b00}.bd.ready{color:var(--g)}.bd.got{color:var(--mu)}.cw.on{background:var(--am);color:#000;cursor:default}.cu{padding-bottom:100px}
+.mi{display:flex;gap:6px;align-items:center}.mi .mn{flex:2}.mi .mp{flex:1;min-width:80px}
+#pa{display:none}
+@media print{body>*:not(#pa){display:none!important}#pa{display:block;width:72mm;margin:0 auto;font:12px/1.35 monospace;color:#000}#pa table{width:100%;border-collapse:collapse}#pa td,#pa th{text-align:left;padding:1px 0}#pa td:nth-child(n+2),#pa th:nth-child(n+2){text-align:right}#pa h2,#pa h3{text-align:center;margin:4px 0}.qg{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:190mm;text-align:center}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head><body>
+<div id="app"></div><div id="pa"></div><div id="toast"></div>
+<script>
+const SUPA_URL='https://sxxiqerssqadmlqrfsvs.supabase.co',SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4eGlxZXJzc3FhZG1scXJmc3ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4NTA1MTgsImV4cCI6MjEwOTQyNjUxOH0.jgIWsVo8e0sngtU1YFGvmRbUsQEfUupDiL05pMOuwgU';
+const $=s=>document.querySelector(s),Q=new URLSearchParams(location.search),app=$('#app');
+const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const R=n=>'₹'+Number(n||0).toLocaleString('en-IN'),RP=n=>'Rs. '+Number(n||0).toLocaleString('en-IN');
+const uid=()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c=='x'?r:r&3|8).toString(16)});
+const rnd=(n)=>{const a='abcdefghjkmnpqrstuvwxyz23456789';return Array.from({length:n},()=>a[Math.random()*a.length|0]).join('')};
+const BASE=location.href.split('#')[0].split('?')[0],DEMO=!SUPA_URL||!SUPA_KEY;
+const sb=DEMO?null:supabase.createClient(SUPA_URL,SUPA_KEY);
+const L=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch{return d}},S=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const fT=t=>new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),fDT=t=>new Date(t).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+const dk=d=>new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const rng=k=>{const a=new Date(k+'T00:00:00');return[a.toISOString(),new Date(+a+864e5).toISOString()]};
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t.h);t.h=setTimeout(()=>t.style.display='none',3000)}
+function ask(html,btns){return new Promise(res=>{const o=document.createElement('div');o.className='ov';o.innerHTML='<div>'+html+'<div class=row style="margin-top:10px;flex-wrap:wrap;justify-content:flex-end"></div></div>';const r=o.querySelector('.row');btns.forEach(([l,v,c])=>{const b=document.createElement('button');b.className='b '+(c||'');b.textContent=l;b.onclick=()=>{o.remove();res([v,o])};r.appendChild(b)});document.body.appendChild(o)})}
+let ac;function beep(){try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);g.gain.value=.2;o.frequency.value=880;o.start();o.stop(ac.currentTime+.25)}catch{}}
+document.addEventListener('click',()=>{try{ac=ac||new AudioContext();ac.resume()}catch{}},{once:true});
+function printHTML(h){$('#pa').innerHTML=h;setTimeout(()=>window.print(),80)}
+
+/* ===== data layer ===== */
+const bc=window.BroadcastChannel?new BroadcastChannel('qr'):null;
+const DB={
+ async get(k){if(DEMO)return(L('d:kv',{})[k]||{}).v||null;const{data,error}=await sb.from('kv').select('v').eq('k',k).maybeSingle();if(error)throw error;return data?data.v:null},
+ async list(venue,pre){if(DEMO)return Object.entries(L('d:kv',{})).filter(([k,o])=>o.venue==venue&&k.startsWith(pre)).map(([k,o])=>({k,v:o.v}));const{data,error}=await sb.from('kv').select('k,v').eq('venue',venue).like('k',pre+'%');if(error)throw error;return data},
+ async mutate(k,venue,fn){for(let i=0;i<6;i++){const cur=await DB.get(k);const nv=fn(cur?JSON.parse(JSON.stringify(cur)):null);if(nv===false)return null;nv.rev=(cur?.rev||0)+1;
+  if(DEMO){const a=L('d:kv',{});a[k]={venue,v:nv};S('d:kv',a);bc&&bc.postMessage(venue);return nv}
+  if(cur){let q=sb.from('kv').update({v:nv}).eq('k',k);q=cur.rev==null?q.is('v->>rev',null):q.eq('v->>rev',String(cur.rev));const r=await q.select('k');if(r.error)throw r.error;if(r.data.length)return nv}
+  else{const r=await sb.from('kv').insert({k,venue,v:nv});if(!r.error)return nv;if(r.error.code!=='23505')throw r.error}
+  await new Promise(r=>setTimeout(r,150*(i+1)))}throw new Error('Busy, please try again')},
+ async put(k,venue,v){if(DEMO){const a=L('d:kv',{});a[k]={venue,v};S('d:kv',a);return}const{error}=await sb.from('kv').upsert({k,venue,v});if(error)throw error},
+ async allVenues(){if(DEMO)return Object.entries(L('d:kv',{})).filter(([k])=>k.startsWith('venue:')).map(([k,o])=>({k,v:o.v}));const{data,error}=await sb.from('kv').select('k,v').like('k','venue:%');if(error)throw error;return data},
+ async pins(){if(DEMO)return L('d:pins',{});const{data,error}=await sb.from('pins').select('*');if(error)throw error;const m={};data.forEach(r=>m[r.venue]=r.code);return m},
+ async setPin(venue,code){if(DEMO){const p=L('d:pins',{});for(const v in p)if(p[v]==code&&v!=venue)throw new Error('That owner ID is already used');p[venue]=code;S('d:pins',p);return}
+  const{error}=await sb.from('pins').upsert({venue,code},{onConflict:'venue'});if(error)throw new Error(error.code=='23505'?'That owner ID is already used':error.message)},
+ async delVenue(v){if(DEMO){const a=L('d:kv',{});for(const k in a)if(a[k].venue==v)delete a[k];S('d:kv',a);const p=L('d:pins',{});delete p[v];S('d:pins',p);S('d:acc',L('d:acc',[]).filter(e=>e.venue!=v));return}
+  for(const t of['kv','pins','acc']){const{error}=await sb.from(t).delete().eq('venue',v);if(error)throw error}},
+ async ownerVenue(c){if(DEMO){const p=L('d:pins',{});return Object.keys(p).find(v=>p[v]==c)||null}const{data,error}=await sb.rpc('owner_venue',{p_code:c});if(error)throw error;return data},
+ async accList(venue,from,to,x){if(DEMO)return L('d:acc',[]).filter(e=>e.venue==venue&&e.ts>=from&&e.ts<to).sort((a,b)=>a.ts<b.ts?-1:1);
+  if(x.master){const{data,error}=await sb.from('acc').select('*').eq('venue',venue).gte('ts',from).lt('ts',to).order('ts');if(error)throw error;return data}
+  const{data,error}=await sb.rpc('acc_list',{p_code:x.code,p_from:from,p_to:to});if(error)throw error;return data},
+ async accPut(venue,e,x){if(DEMO){const a=L('d:acc',[]).filter(z=>z.id!=e.id);a.push({...e,venue});S('d:acc',a);return}
+  if(x.master){const{error}=await sb.from('acc').upsert({...e,venue});if(error)throw error;return}
+  const{error}=await sb.rpc('acc_put',{p_code:x.code,p_e:e});if(error)throw error},
+ async accDel(venue,id,x){if(DEMO){S('d:acc',L('d:acc',[]).filter(z=>z.id!=id));return}
+  if(x.master){const{error}=await sb.from('acc').delete().eq('id',id).eq('venue',venue);if(error)throw error;return}
+  const{error}=await sb.rpc('acc_del',{p_code:x.code,p_id:id});if(error)throw error},
+ sub(venue,cb){if(DEMO){bc&&(bc.onmessage=e=>e.data==venue&&cb());addEventListener('storage',cb)}else sb.channel('v'+venue+rnd(4)).on('postgres_changes',{event:'*',schema:'public',table:'kv',filter:'venue=eq.'+venue},cb).subscribe();return setInterval(cb,8000)}
+};
+const fresh=()=>({sid:rnd(10),orders:[],call:false,reqs:[]});
+const tot=o=>o.reduce((s,b)=>s+b.items.reduce((a,i)=>a+i.p*i.q,0),0);
+function parseMenu(t){const m=[];let c;for(let l of t.split('\n')){l=l.trim();if(!l)continue;if(l[0]=='#'){c={c:l.slice(1).trim(),items:[]};m.push(c);continue}const x=l.match(/^(.+?)\s*@\s*(\d+(?:\.\d+)?)$/);if(x){if(!c){c={c:'Menu',items:[]};m.push(c)}c.items.push({n:x[1].trim(),p:+x[2]})}}return m}
+const menuText=m=>(m||[]).map(c=>'# '+c.c+'\n'+c.items.map(i=>i.n+' @ '+i.p).join('\n')).join('\n');
+function applyQty(c,name,nq){let red=c.orders.reduce((s,b)=>s+b.items.filter(i=>i.n==name).reduce((a,i)=>a+i.q,0),0)-nq;for(let i=c.orders.length-1;i>=0&&red>0;i--)for(const it of c.orders[i].items)if(it.n==name&&red>0){const d=Math.min(it.q,red);it.q-=d;red-=d}c.orders.forEach(b=>b.items=b.items.filter(i=>i.q>0));c.orders=c.orders.filter(b=>b.items.length)}
+
+/* ===== customer ===== */
+async function customer(){
+ const vid=Q.get('v'),t=Q.get('t');let V,mysid,T,cart={};
+ try{V=await DB.get('venue:'+vid)}catch(e){app.innerHTML='<div class=c><h1>Could not connect</h1></div>';return}
+ const msg=(h,s='')=>app.innerHTML=`<div class=c><div class=card><h1>${h}</h1><p>${s}</p></div></div>`;
+ if(!V||!(t>=1&&t<=V.tables))return msg('Invalid QR code','Please ask the staff for help.');
+ if(V.active===false)return msg('Ordering is paused','Please ask the staff for help.');
+ const tk='tbl:'+vid+':'+t;
+ try{await DB.mutate(tk,vid,c=>c&&c.sid?false:fresh());T=await DB.get(tk);mysid=T.sid}catch(e){return msg('Could not start',E(e.message))}
+ const done=()=>msg('Thank you','Scan the QR again to order.');
+ async function act(fn){try{const r=await DB.mutate(tk,vid,c=>c&&c.sid===mysid?fn(c):false);if(!r){T=await DB.get(tk);draw();return false}T=r;draw();return true}catch(e){toast('Failed: '+e.message);return false}}
+ function draw(){
+  if(!T||T.sid!==mysid)return done();
+  const n=Object.values(cart).reduce((a,b)=>a+b.q,0),sum=Object.values(cart).reduce((a,b)=>a+b.q*b.p,0),has=T.orders.length,allGot=has>0&&T.orders.every(b=>b.items.every(i=>i.s=='got')),cats=V.menu.filter(c=>c.items.length);
+  app.innerHTML=`<div class=hero><div><div class=hn>${E(V.name)}</div><div class=tp>Table ${E(t)}</div></div>${T.call?'<button class="cw on" disabled>✅ <span>Waiter called</span></button>':'<button class=cw onclick="C_.call()">🔔 <span>Call waiter</span></button>'}</div>
+  <div class="c cu">${T.call?'<div class=note>🔔 Waiter has been called. Please wait…</div>':''}
+  ${has?`<div class="card ok"><h2>${allGot?'🎉 All items received. Enjoy your meal!':'✅ Please wait while we are preparing your order'}</h2>${T.orders.map(b=>`<div class=mu>${fT(b.t)}</div>`+b.items.map(i=>{const s=i.s||'new';return`<div class=row style="align-items:flex-start"><span>${i.q} × ${E(i.n)}<br><small class="bd ${s}">${s=='got'?'🍽 Received':s=='ready'?'✅ Ready – on its way':'⏳ Preparing'}</small></span><span style="text-align:right">${R(i.p*i.q)}${s!='got'?`<br><button class="b s" onclick="C_.got('${b.id}','${E(i.n).replace(/'/g,"\\'")}')">Got it</button>`:''}</span></div>`}).join('')).join('')}<div class=row style="margin-top:6px"><b>Total so far</b><b>${R(tot(T.orders))}</b></div>${allGot?(T.bill?'<div class=note>🧾 Bill requested. The manager will bring your bill.</div>':'<button class="b p" onclick="C_.bill()">🧾 Get a bill</button>'):''}<button class=b onclick="C_.edit()">✏️ Edit order</button>${T.reqs.length?'<div class=mu>Edit request sent to the manager…</div>':''}</div>`:''}
+  ${cats.length?`<div class=chips>${cats.map((c,i)=>`<button class=chip onclick="document.getElementById('cat${i}').scrollIntoView({behavior:'smooth'})">${E(c.c)}</button>`).join('')}</div>`:'<div class=card>The menu is not ready yet. Please ask the staff.</div>'}
+  ${cats.map((c,i)=>`<h2 class=ch id=cat${i}>${E(c.c)}</h2>`+c.items.map(it=>{const q=cart[it.n]?.q||0,nm=E(it.n).replace(/'/g,"\\'");return`<div class=item><div><div class=in1>${E(it.n)}</div><div class=pr>${R(it.p)}</div></div>${q?`<div class=st><button onclick="C_.q('${nm}',${it.p},-1)">−</button><b>${q}</b><button onclick="C_.q('${nm}',${it.p},1)">+</button></div>`:`<button class=add onclick="C_.q('${nm}',${it.p},1)">ADD</button>`}</div>`}).join('')).join('')}</div>
+  ${n?`<div class=cartbar><div><b>${n} item${n>1?'s':''}</b><div>${R(sum)}</div></div><button class="b p" onclick="C_.place()">Place order ›</button></div>`:''}`}
+ window.C_={
+  q(nm,p,d){const q=Math.max(0,(cart[nm]?.q||0)+d);if(q)cart[nm]={n:nm,p,q};else delete cart[nm];draw()},
+  async place(){const items=Object.values(cart);const[v]=await ask(`<h2>Confirm order?</h2>`+items.map(i=>`<div class=row><span>${i.q} × ${E(i.n)}</span><span>${R(i.q*i.p)}</span></div>`).join('')+'<p class=mu>Once placed, an order cannot be cancelled by you. You can place more orders.</p>',[['Back',0],['Place order',1,'p']]);if(!v)return;
+   if(await act(c=>{c.orders.push({id:uid(),t:Date.now(),items:items.map(i=>({...i}))});c.bill=false;return c})){cart={};draw();ask('<h2>✅ Order placed</h2><p>Please wait while we are preparing your order.</p>',[['OK',1,'p']])}},
+  async got(bid,nm){await act(c=>{const b=c.orders.find(x=>x.id==bid),i=b&&b.items.find(x=>x.n==nm);if(!i)return false;i.s='got';return c})},
+  async bill(){if(T.bill)return;if(await act(c=>{c.bill=true;c.billAt=Date.now();return c}))toast('Bill requested')},
+  async call(){if(T.call)return;if(await act(c=>{c.call=true;c.callAt=Date.now();return c}))toast('Waiter has been called')},
+  async edit(){const names=[...new Set(T.orders.flatMap(b=>b.items.map(i=>i.n)))];const cnt=n=>T.orders.reduce((s,b)=>s+b.items.filter(i=>i.n==n).reduce((a,i)=>a+i.q,0),0);
+   const[v,el]=await ask('<h2>Edit order</h2><p class=mu>Request a lower quantity (0 = cancel item). The manager must approve.</p>'+names.map((n,i)=>`<div class=row><span>${E(n)}</span><select class=in style="width:90px" data-n="${i}">${Array.from({length:cnt(n)+1},(_,q)=>`<option ${q==cnt(n)?'selected':''}>${q}</option>`).join('')}</select></div>`).join(''),[['Close',0],['Send request',1,'p']]);if(!v)return;
+   const rq=[...el.querySelectorAll('select')].map(s=>({id:uid(),n:names[s.dataset.n],from:cnt(names[s.dataset.n]),to:+s.value})).filter(r=>r.to<r.from);if(!rq.length)return;
+   if(await act(c=>{c.reqs.push(...rq);c.reqCt=(c.reqCt||0)+1;return c}))toast('Request sent')}
+ };
+ draw();DB.sub(vid,async()=>{try{const x=await DB.get(tk);if(x&&JSON.stringify(x)!==JSON.stringify(T)){const was=T&&T.call&&x.sid===T.sid&&!x.call;T=x;draw();if(was)toast('Waiter is on the way ✓')}const vv=await DB.get('venue:'+vid);if(vv&&vv.active===false)msg('Ordering is paused','Please ask the staff for help.')}catch{}});
+}
+
+/* ===== entry points ===== */
+function gate(m=''){clearInterval(window.iv);app.innerHTML=`<div class=c><div class=card><h1>Enter your ID</h1><input id=gi class=in autocapitalize=off autocomplete=off placeholder="Access ID"><button class="b p" style="width:100%" onclick="signIn()">Continue</button><p class=err>${E(m)}</p></div></div>`}
+async function signIn(){const c=$('#gi').value.trim();if(!/^[A-Za-z0-9]{8,}$/.test(c))return gate('ID must be 8 or more letters or numbers.');await ownerEnter(c)}
+async function ownerEnter(c){try{const v=await DB.ownerVenue(c);if(!v){localStorage.removeItem('oid');return gate('ID not found.')}localStorage.setItem('oid',c);await openDash(v,false,c)}catch(e){gate('Could not connect: '+e.message)}}
+function signOut(){localStorage.removeItem('oid');location.href=BASE}
+async function masterIn(){return DEMO?L('d:master',false):!!(await sb.auth.getSession()).data.session}
+async function boot(){
+ if(Q.has('v'))return customer();
+ if(Q.get('id')){localStorage.setItem('oid',Q.get('id'));history.replaceState(null,'',BASE)}
+ if(await masterIn())return masterPanel();
+ if(Q.has('master'))return masterLogin();
+ const c=localStorage.getItem('oid');c?ownerEnter(c):gate();
+}
+function masterLogin(m=''){app.innerHTML=`<div class=c><div class=card><h1>Master sign-in</h1>${DEMO?'<p class=mu>Demo mode: no password needed.</p>':'<input id=me class=in type=email placeholder=Email><input id=mp class=in type=password placeholder=Password>'}<button class="b p" style="width:100%" onclick="masterGo()">Sign in</button><p class=err>${E(m)}</p></div></div>`}
+async function masterGo(){if(DEMO){S('d:master',true);return location.href=BASE}const{error}=await sb.auth.signInWithPassword({email:$('#me').value.trim(),password:$('#mp').value});if(error)return masterLogin(error.message);location.href=BASE}
+async function masterOut(){DEMO?S('d:master',false):await sb.auth.signOut();location.href=BASE}
+
+/* ===== master panel ===== */
+async function masterPanel(){
+ clearInterval(window.iv);C={};let rows,pins;try{rows=await DB.allVenues();pins=await DB.pins()}catch(e){app.innerHTML='<div class=c><p class=err>'+E(e.message)+'</p></div>';return}
+ app.innerHTML=`<div class=w><div class=row><h1>Master panel</h1><span><button class="b p" onclick="venueForm()">+ New venue</button><button class=b onclick="masterOut()">Sign out</button></span></div>
+ ${rows.map(r=>{const v=r.v,id=r.k.slice(6),act=v.active!==false;return`<div class=card><div class=row><div><b>${E(v.name)}</b> ${act?'':'<span class=err>(suspended)</span>'}<div class=mu>${v.tables} tables · Owner ID: ${E(pins[id]||'—')}</div></div></div>
+ <button class="b s" onclick="openDash('${id}',true)">Open</button><button class="b s" onclick="copyLink('${id}')">Copy owner link</button><button class="b s" onclick="venueForm('${id}')">Edit</button><button class="b s" onclick="toggleV('${id}')">${act?'Suspend':'Reactivate'}</button><button class="b s d" onclick="delV('${id}')">Delete</button></div>`}).join('')||'<p class=mu>No venues yet.</p>'}</div>`;
+}
+async function copyLink(id){const p=await DB.pins();const u=BASE+'?id='+p[id];try{await navigator.clipboard.writeText(u);toast('Owner link copied')}catch{ask('<p>Copy this link:</p><input class=in value="'+E(u)+'" onfocus=this.select()>',[['OK',1,'p']])}}
+async function toggleV(id){const v=await DB.get('venue:'+id);v.active=v.active===false;await DB.put('venue:'+id,id,v);masterPanel()}
+async function delV(id){const[v]=await ask('<h2>Delete venue?</h2><p>This permanently deletes the venue, its owner ID, tables and ALL accounts.</p>',[['Cancel',0],['Delete',1,'d']]);if(!v)return;try{await DB.delVenue(id);masterPanel()}catch(e){toast(e.message)}}
+const mItem=(n='',p='')=>`<div class=mi><input class="in mn" placeholder="Item name" value="${E(n)}"><input class="in mp" type=number inputmode=decimal min=0 placeholder="Price ₹" value="${p}"><button class="b s d" onclick="this.parentNode.remove()">✕</button></div>`;
+const mCat=(c='',items=[{n:'',p:''}])=>`<div class="card mc"><div class=row><input class="in mcn" placeholder="Category (e.g. Starters)" value="${E(c)}"><button class="b s d" onclick="this.closest('.mc').remove()">✕</button></div>${items.map(i=>mItem(i.n,i.p)).join('')}<button class="b s" onclick="this.insertAdjacentHTML('beforebegin',mItem())">+ Add item</button></div>`;
+const readMenu=el=>[...el.querySelectorAll('.mc')].map(c=>({c:c.querySelector('.mcn').value.trim()||'Menu',items:[...c.querySelectorAll('.mi')].map(r=>({n:r.querySelector('.mn').value.trim(),p:parseFloat(r.querySelector('.mp').value)})).filter(i=>i.n&&i.p>=0)})).filter(c=>c.items.length);
+async function venueForm(id){
+ const v=id?await DB.get('venue:'+id):{name:'',tables:5,menu:[],active:true};const pins=await DB.pins();let code=id?pins[id]||'':rnd(10);
+ const[ok,el]=await ask(`<h2>${id?'Edit':'New'} venue</h2><label>Name</label><input id=vn class=in value="${E(v.name)}"><label>Number of tables</label><input id=vt class=in type=number min=1 max=200 value="${v.tables}">
+ <label>Owner access ID (8+ letters/numbers)</label><div class=row><input id=vc class=in value="${E(code)}" autocapitalize=off><button class=b onclick="$('#vc').value=rnd(10)">Generate</button></div>
+ <label>Menu</label><div id=me>${(v.menu&&v.menu.length?v.menu:[{c:'',items:[]}]).map(c=>mCat(c.c,c.items.length?c.items:[{n:'',p:''}])).join('')}<button class=b onclick="this.insertAdjacentHTML('beforebegin',mCat())">+ Add category</button></div>`,[['Cancel',0],['Save',1,'p']]);if(!ok)return;
+ const g=s=>el.querySelector(s).value.trim(),name=g('#vn'),tables=+g('#vt'),oc=g('#vc'),menu=readMenu(el);
+ if(!name||!(tables>0)||!/^[A-Za-z0-9]{8,}$/.test(oc)||!menu.length){toast('Check name, tables, owner ID (8+ letters/numbers) and at least one menu item with a price');return}
+ const vid=id||rnd(8);try{await DB.setPin(vid,oc);await DB.put('venue:'+vid,vid,{...v,name,tables,menu});toast('Saved');C.vid==vid?openDash(vid,true):masterPanel()}catch(e){toast(e.message)}
+}
+
+/* ===== owner dashboard ===== */
+let C={};
+async function openDash(vid,master,code){
+ clearInterval(window.iv);const V=await DB.get('venue:'+vid);if(!V){master?masterPanel():gate('Venue not found');return}
+ C={master,code,vid,V,tab:'live',T:{},date:dk(new Date()),seen:null};
+ if(V.active===false&&!master){app.innerHTML=`<div class=c><div class=card><h1>Service paused</h1><button class=b onclick="signOut()">Sign out</button></div></div>`;return}
+ app.innerHTML=`<div class=w><div class=row><h1>${E(V.name)}</h1><span>${master?'<button class=b onclick="masterPanel()">← Panel</button>':'<button class=b onclick="signOut()">Sign out</button>'}</span></div><div id=bn></div><div class=tabs id=tb></div><div id=pn></div></div>`;
+ tabs();bn();await tab('live');
+ window.iv=DB.sub(vid,live);setInterval(flushQ,15000);
+}
+function tabs(){const t=[['live','Live orders'],['acc','Accounts'],['an','Analytics'],['qr','QR codes']];if(C.master)t.push(['menu','Menu & settings']);$('#tb').innerHTML=t.map(([k,l])=>`<button class="b ${C.tab==k?'on':''}" onclick="tab('${k}')">${l}</button>`).join('')}
+async function tab(k){C.tab=k;tabs();({live,acc:accounts,an:analytics,qr:qrTab,menu:()=>venueForm(C.vid)})[k]()}
+const tk=n=>'tbl:'+C.vid+':'+n;
+async function live(){
+ if(C.tab!=='live')return;try{const v=await DB.get('venue:'+C.vid);if(v){C.V=v;if(v.active===false&&!C.master)return openDash(C.vid,false,C.code)}const l=await DB.list(C.vid,'tbl:'+C.vid+':');C.T={};l.forEach(r=>C.T[r.k.split(':')[2]]=r.v)}catch(e){return}
+ const sig=Object.values(C.T).reduce((a,t)=>a+t.orders.length+(t.call?1:0)+(t.bill?1:0)+t.reqs.length,0);if(C.seen!==null&&sig>C.seen)beep();C.seen=sig;
+ const cards=Object.keys(C.T).sort((a,b)=>a-b).filter(n=>{const t=C.T[n];return t.orders.length||t.call||t.reqs.length});
+ $('#pn').innerHTML=cards.length?`<div class=grid>${cards.map(n=>{const t=C.T[n],unp=t.orders.filter(b=>!b.kot).length;return`<div class=card><div class=row><h2>Table ${n}</h2><b>${R(tot(t.orders))}</b></div>
+ ${t.bill?'<div class="glow" style="margin:6px 0">🧾 Customer is asking for the bill</div>':''}
+ ${t.call?`<div class="glow row">🔔 Waiter called <button class="b s" onclick="A.att(${n})">Attended</button></div>`:''}
+ ${t.reqs.map(r=>`<div class="card" style="background:#fff8e1"><div>Edit request: ${E(r.n)} ${r.from} → ${r.to?r.to:'cancel'}</div><button class="b s p" onclick="A.req(${n},'${r.id}',1)">Approve</button><button class="b s" onclick="A.req(${n},'${r.id}',0)">Reject</button></div>`).join('')}
+ ${t.orders.map((b,oi)=>`<div class=mu>${fT(b.t)} ${b.kot?'· KOT printed':'· <b class=err>new</b>'}</div>`+b.items.map((i,ii)=>{const st=i.s||'new';return`<div class=row style="align-items:flex-start"><span>${i.q} × ${E(i.n)}<br><small class="bd ${st}">${st=='got'?'🍽 Customer received':st=='ready'?'✅ Prepared':'⏳ Pending'}</small></span><span style="display:flex;flex-wrap:wrap;justify-content:flex-end">${st=='got'?'':`<button class="b s ${st=='ready'?'':'p'}" onclick="A.prep(${n},'${b.id}','${E(i.n).replace(/'/g,"\\'")}')">${st=='ready'?'Undo':'✔ Prepared'}</button>`}<button class="b s" onclick="A.minus(${n},${oi},${ii})">−</button><button class="b s" onclick="A.rm(${n},${oi},${ii})">✕</button></span></div>`}).join('')).join('')}
+ <div style="margin-top:8px"><button class="b ${unp?'p':''}" onclick="A.kot(${n},0)" ${unp?'':'disabled'}>🖨 Print KOT${unp?' (new items)':''}</button><button class=b onclick="A.kot(${n},1)">Reprint KOT (all)</button><button class=b onclick="A.prepAll(${n})">✔ All prepared</button></div>
+ <button class="b p" onclick="A.done(${n})">✔ Complete order</button><button class="b d" onclick="A.rej(${n})">✖ Reject / Order cancelled</button></div>`}).join('')}</div>`:'<p class=mu>No active tables.</p>';
+}
+const mut=(n,fn)=>DB.mutate(tk(n),C.vid,c=>c?fn(c)||c:false).then(live).catch(e=>toast(e.message));
+const A=window.A={
+ att:n=>mut(n,c=>{c.call=false}),
+ prep:(n,bid,nm)=>mut(n,c=>{const b=c.orders.find(x=>x.id==bid),i=b&&b.items.find(x=>x.n==nm);if(i&&i.s!='got')i.s=i.s=='ready'?'new':'ready'}),
+ prepAll:n=>mut(n,c=>{c.orders.forEach(b=>b.items.forEach(i=>{if(!i.s||i.s=='new')i.s='ready'}))}),
+ minus:(n,o,i)=>mut(n,c=>{const it=c.orders[o].items[i];it.q--;c.orders.forEach(b=>b.items=b.items.filter(x=>x.q>0));c.orders=c.orders.filter(b=>b.items.length)}),
+ rm:(n,o,i)=>mut(n,c=>{c.orders[o].items.splice(i,1);c.orders=c.orders.filter(b=>b.items.length)}),
+ req:(n,id,ok)=>mut(n,c=>{const r=c.reqs.find(x=>x.id==id);if(r&&ok)applyQty(c,r.n,r.to);c.reqs=c.reqs.filter(x=>x.id!=id)}),
+ async kot(n,all){const t=C.T[n];const bs=all?t.orders:t.orders.filter(b=>!b.kot);if(!bs.length)return;const m={};bs.forEach(b=>b.items.forEach(i=>m[i.n]=(m[i.n]||0)+i.q));
+  printHTML(`<h2>${E(C.V.name)}</h2><h3>KOT · Table ${n}</h3><p>${fDT(Date.now())}<br>${all?'REPRINT – ALL ITEMS':'NEW ITEMS'}</p><table>${Object.entries(m).map(([k,q])=>`<tr><td><b>${q} × ${E(k)}</b></td></tr>`).join('')}</table>`);
+  const ids=bs.map(b=>b.id);mut(n,c=>{c.orders.forEach(b=>{if(ids.includes(b.id))b.kot=true})})},
+ async done(n){const[m]=await ask('<h2>Payment method</h2>',[['Cancel',0],['Cash','Cash','p'],['UPI','UPI','p'],['Card','Card','p']]);if(m)finish(n,m)},
+ async rej(n){const[v]=await ask('<h2>Cancel this table’s order?</h2><p class=mu>Nothing will be added to accounts.</p>',[['Back',0],['Order cancelled',1,'d']]);if(v)finish(n,null)}
+};
+async function finish(n,method){
+ let snap;try{await DB.mutate(tk(n),C.vid,c=>{snap=c;return fresh()})}catch(e){return toast('Could not clear table: '+e.message)}
+ await live();if(!snap||!snap.orders.length)return;
+ if(!method){const k='cx:'+C.vid+':'+dk(new Date());try{await DB.mutate(k,C.vid,c=>({n:(c?.n||0)+1}))}catch{}return toast('Order cancelled')}
+ const m={};snap.orders.forEach(b=>b.items.forEach(i=>{m[i.n]=m[i.n]||{n:i.n,p:i.p,q:0};m[i.n].q+=i.q}));
+ const e={id:uid(),ts:new Date().toISOString(),tbl:String(n),items:Object.values(m),method,amount:tot(snap.orders)};
+ await saveAcc(e);
+ const[p]=await ask(`<h2>Order completed</h2><p>Table ${n} · ${R(e.amount)} · ${method}</p><p>Print the bill now?</p>`,[['Later',0],['🖨 Print bill',1,'p']]);if(p)printBill(e);
+}
+const QK=()=>'q:'+C.vid;
+async function saveAcc(e){try{await DB.accPut(C.vid,e,C)}catch(x){const q=L(QK(),[]);if(!q.find(z=>z.id==e.id))q.push(e);S(QK(),q);S('qerr',x.message||String(x))}bn()}
+async function flushQ(){if(!C.vid)return;const q=L(QK(),[]);if(!q.length)return;const rest=[];let er='';for(const e of q){try{await DB.accPut(C.vid,e,C)}catch(x){rest.push(e);er=x.message||String(x)}}S(QK(),rest);S('qerr',er);bn();if(!rest.length&&C.tab=='acc')accounts()}
+function bn(){const q=L(QK(),[]);const b=$('#bn');if(b)b.innerHTML=q.length?`<div class=bnr>⚠ ${q.length} accounting entr${q.length>1?'ies':'y'} not saved: ${E(L('qerr',''))} <button class="b s d" onclick="flushQ()">Retry</button></div>`:''}
+function printBill(e){printHTML(`<h2>${E(C.V.name)}</h2><p>${fDT(e.ts)}<br>Bill #${e.id.slice(0,6).toUpperCase()} · Table ${E(e.tbl)}</p><table><tr><th>Item</th><th>Rate</th><th>Amt</th></tr>${e.items.map(i=>`<tr><td>${i.q} × ${E(i.n)}</td><td>${i.p}</td><td>${i.q*i.p}</td></tr>`).join('')}</table><hr><h3>Total ${RP(e.amount)}</h3><p>Paid by: ${E(e.method)}<br>Thank you, visit again!</p>`)}
+
+/* ===== accounts ===== */
+async function accounts(){
+ if(C.tab!=='acc')return;const[f,t]=rng(C.date);let rows=[];try{rows=await DB.accList(C.vid,f,t,C)}catch(e){$('#pn').innerHTML='<p class=err>'+E(e.message)+'</p>';return}C.acc=rows;
+ $('#pn').innerHTML=`<div class=card><div class=row><button class=b onclick="dayMove(-1)">◀ Prev</button><input type=date class=in style="max-width:170px" value="${C.date}" onchange="C.date=this.value;accounts()"><button class=b onclick="dayMove(1)">Next ▶</button></div>
+ <div class=row><h2>Day total: ${R(rows.reduce((s,r)=>s+Number(r.amount),0))}</h2><span><button class="b p" onclick="todaySale()">Check today’s sale</button><button class=b onclick="accForm()">+ Add entry</button></span></div></div>
+ ${rows.map(r=>`<div class=card><div class=row><b>${fT(r.ts)} · Table ${E(r.tbl)}</b><b>${R(r.amount)}</b></div><div class=mu>${r.items.map(i=>i.q+' × '+E(i.n)+' @ '+i.p).join(', ')} · ${E(r.method)}</div>
+ <button class="b s" onclick="printBill(C.acc.find(x=>x.id=='${r.id}'))">🖨 Print bill</button><button class="b s" onclick="accForm('${r.id}')">Edit</button><button class="b s d" onclick="accDel('${r.id}')">Delete</button></div>`).join('')||'<p class=mu>No entries for this date.</p>'}
+ <div class=card><h2>Export</h2><div class=row><input type=date id=ef class=in value="${C.date}"><input type=date id=et class=in value="${C.date}"></div><button class=b onclick="exportX()">Excel (.xlsx)</button><button class=b onclick="exportP()">PDF</button></div>`;
+}
+function dayMove(d){const x=new Date(C.date+'T00:00:00');x.setDate(x.getDate()+d);C.date=dk(x);accounts()}
+async function todaySale(){const[f,t]=rng(dk(new Date()));try{const r=await DB.accList(C.vid,f,t,C);ask(`<h2>Today’s sale</h2><h1>${R(r.reduce((s,x)=>s+Number(x.amount),0))}</h1><p class=mu>${r.length} order${r.length==1?'':'s'}</p>`,[['Close',1,'p']])}catch(e){toast(e.message)}}
+async function accDel(id){const[v]=await ask('<h2>Delete this entry?</h2>',[['Cancel',0],['Delete',1,'d']]);if(!v)return;try{await DB.accDel(C.vid,id,C);accounts()}catch(e){toast(e.message)}}
+async function accForm(id){
+ const r=id?C.acc.find(x=>x.id==id):{ts:new Date().toISOString(),tbl:'',items:[],method:'Cash'};const lt=new Date(new Date(r.ts)-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16);
+ const[ok,el]=await ask(`<h2>${id?'Edit':'Add'} entry</h2><input id=af class=in type=datetime-local value="${lt}"><input id=at class=in placeholder="Table" value="${E(r.tbl)}"><select id=am class=in>${['Cash','UPI','Card'].map(m=>`<option ${m==r.method?'selected':''}>${m}</option>`).join('')}</select>
+ <textarea id=ai class=in placeholder="One per line: 2 x Tea @ 40">${E(r.items.map(i=>i.q+' x '+i.n+' @ '+i.p).join('\n'))}</textarea>`,[['Cancel',0],['Save',1,'p']]);if(!ok)return;
+ const items=[];for(const l of el.querySelector('#ai').value.split('\n')){const x=l.trim().match(/^(\d+)\s*x\s*(.+?)\s*@\s*(\d+(?:\.\d+)?)$/i);if(x)items.push({q:+x[1],n:x[2],p:+x[3]})}
+ if(!items.length)return toast('Items format: 2 x Tea @ 40');
+ const e={id:r.id||uid(),ts:new Date(el.querySelector('#af').value).toISOString(),tbl:el.querySelector('#at').value||'-',items,method:el.querySelector('#am').value,amount:items.reduce((s,i)=>s+i.q*i.p,0)};
+ try{await DB.accPut(C.vid,e,C);accounts()}catch(x){toast(x.message)}}
+async function rangeRows(){const f=$('#ef').value,t=$('#et').value;const a=rng(f)[0],b=rng(t)[1];return{f,t,rows:await DB.accList(C.vid,a,b,C)}}
+async function exportX(){try{const{f,t,rows}=await rangeRows();const tx=rows.map(r=>({Date:dk(new Date(r.ts)),Time:fT(r.ts),Table:r.tbl,Items:r.items.map(i=>i.q+' x '+i.n+' @ '+i.p).join('; '),Payment:r.method,Amount:Number(r.amount)}));
+ const by={};rows.forEach(r=>by[r.method]=(by[r.method]||0)+Number(r.amount));const sm=[{Metric:'Orders',Value:rows.length},{Metric:'Total',Value:rows.reduce((s,r)=>s+Number(r.amount),0)},...Object.entries(by).map(([k,v])=>({Metric:k,Value:v}))];
+ const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(tx),'Transactions');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sm),'Summary');XLSX.writeFile(wb,`accounts_${f}_to_${t}.xlsx`)}catch(e){toast(e.message)}}
+async function exportP(){try{const{f,t,rows}=await rangeRows();const d=new jspdf.jsPDF();d.text(`${C.V.name} - Accounts ${f} to ${t}`,14,15);
+ d.autoTable({startY:22,head:[['Date','Time','Table','Items','Payment','Amount']],body:rows.map(r=>[dk(new Date(r.ts)),fT(r.ts),r.tbl,r.items.map(i=>i.q+' x '+i.n).join(', '),r.method,'Rs. '+r.amount])});
+ d.text('Total: Rs. '+rows.reduce((s,r)=>s+Number(r.amount),0),14,d.lastAutoTable.finalY+10);d.save(`accounts_${f}_to_${t}.pdf`)}catch(e){toast(e.message)}}
+
+/* ===== analytics ===== */
+let charts=[];
+async function analytics(days=7){
+ const to=rng(dk(new Date()))[1],from=new Date(+new Date(to)-days*864e5).toISOString();let rows=[],cx=0;
+ try{rows=await DB.accList(C.vid,from,to,C);const l=await DB.list(C.vid,'cx:'+C.vid+':');const lo=dk(new Date(from));cx=l.filter(r=>r.k.split(':')[2]>=lo).reduce((s,r)=>s+(r.v.n||0),0)}catch(e){$('#pn').innerHTML='<p class=err>'+E(e.message)+'</p>';return}
+ const rev=rows.reduce((s,r)=>s+Number(r.amount),0);
+ $('#pn').innerHTML=`<div class=tabs>${[7,30,90].map(d=>`<button class="b ${d==days?'on':''}" onclick="analytics(${d})">${d} days</button>`).join('')}</div>
+ <div class=kp><div>Revenue<br><b>${R(rev)}</b></div><div>Orders<br><b>${rows.length}</b></div><div>Average order<br><b>${R(rows.length?rev/rows.length:0)}</b></div><div>Cancelled<br><b>${cx}</b></div></div>
+ <div class=grid><div class=card><canvas id=c1></canvas></div><div class=card><canvas id=c2></canvas></div><div class=card><canvas id=c3></canvas></div><div class=card><canvas id=c4></canvas></div></div>`;
+ charts.forEach(c=>c.destroy());charts=[];const sum=(f,v)=>{const m={};rows.forEach(r=>f(r,(k,x)=>m[k]=(m[k]||0)+x));return m};
+ const day=sum((r,a)=>a(dk(new Date(r.ts)),Number(r.amount))),it=sum((r,a)=>r.items.forEach(i=>a(i.n,i.q))),pm=sum((r,a)=>a(r.method,Number(r.amount))),hr=sum((r,a)=>a(new Date(r.ts).getHours()+':00',1));
+ const top=Object.entries(it).sort((a,b)=>b[1]-a[1]).slice(0,8),hk=Object.keys(hr).sort((a,b)=>parseInt(a)-parseInt(b));
+ const mk=(id,type,labels,data,t)=>charts.push(new Chart($('#'+id),{type,data:{labels,datasets:[{data,label:t,backgroundColor:['#0f7a4f','#14231c','#f0a500','#6b7c73','#8bc34a','#26a69a','#c62828','#5c6bc0']}]},options:{plugins:{legend:{display:type=='doughnut'},title:{display:true,text:t}}}}));
+ mk('c1','bar',Object.keys(day).sort(),Object.keys(day).sort().map(k=>day[k]),'Revenue per day');mk('c2','bar',top.map(x=>x[0]),top.map(x=>x[1]),'Top items');mk('c3','doughnut',Object.keys(pm),Object.values(pm),'Payment methods');mk('c4','bar',hk,hk.map(k=>hr[k]),'Busy hours (orders)');
+}
+
+/* ===== QR ===== */
+function qrTab(){
+ const n=C.V.tables;$('#pn').innerHTML=`<button class="b p" onclick="printQR()">🖨 Print all QR codes</button><div class=grid id=qg>${Array.from({length:n},(_,i)=>{const u=BASE+'?v='+C.vid+'&t='+(i+1);return`<div class="card" style="text-align:center"><h2>Table ${i+1}</h2><div id=q${i+1} style="display:inline-block"></div><div><a href="${u}" target=_blank>Open this table</a></div></div>`}).join('')}</div>`;
+ for(let i=1;i<=n;i++)new QRCode($('#q'+i),{text:BASE+'?v='+C.vid+'&t='+i,width:160,height:160});
+}
+function printQR(){const n=C.V.tables;let h='<div class=qg>';for(let i=1;i<=n;i++){const cv=$('#q'+i+' canvas');h+=`<div><h3>${E(C.V.name)}</h3><img width=150 src="${cv?cv.toDataURL():''}"><div><b>Table ${i}</b></div><div>Scan to order</div></div>`}printHTML(h+'</div>')}
+
+boot();
+</script></body></html>
